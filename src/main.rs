@@ -5,6 +5,9 @@ use icalendar::{Calendar, Event, *};
 use std::{fs::File, io::Write, time::Duration};
 use thirtyfour::prelude::*;
 
+const URL: &str = "https://basketligaen.dk/kampprogram";
+const CALENDAR_FILENAME: &str = "basket.ics";
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let matches = get_all_events_from_page().await?;
@@ -12,8 +15,6 @@ async fn main() -> anyhow::Result<()> {
 
     Ok(())
 }
-
-const URL: &str = "https://basketligaen.dk/kampprogram";
 
 async fn get_all_events_from_page() -> anyhow::Result<Vec<MatchEvent>> {
     let mut caps = DesiredCapabilities::firefox();
@@ -39,6 +40,7 @@ async fn get_all_events_from_page() -> anyhow::Result<Vec<MatchEvent>> {
 
     Ok(matches)
 }
+
 impl From<&MatchEvent> for Event {
     fn from(event: &MatchEvent) -> Self {
         Event::new()
@@ -60,8 +62,8 @@ fn create_calendar_of_matches(matches: Vec<MatchEvent>) -> anyhow::Result<()> {
         cal
     });
 
-    let mut output = File::create("Felix Basket.ics")?;
-    write!(output, "{}", calendar)?;
+    let mut output = File::create(CALENDAR_FILENAME)?;
+    write!(output, "{calendar}")?;
 
     Ok(())
 }
