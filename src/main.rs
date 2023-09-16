@@ -43,6 +43,12 @@ async fn get_all_events_from_page() -> anyhow::Result<Vec<MatchEvent>> {
 
 impl From<&MatchEvent> for Event {
     fn from(event: &MatchEvent) -> Self {
+        let start = CalendarDateTime::from((event.time().naive_utc(), event.time().timezone()));
+        let end = CalendarDateTime::from((
+            event.time().naive_utc() + chrono::Duration::hours(2),
+            event.time().timezone(),
+        ));
+
         Event::new()
             .summary(&format!(
                 "Basket: {} vs {}",
@@ -50,8 +56,8 @@ impl From<&MatchEvent> for Event {
                 event.away_team()
             ))
             .location(event.location())
-            .starts(*event.time())
-            .ends(*event.time() + chrono::Duration::hours(2))
+            .starts(start)
+            .ends(end)
             .done()
     }
 }

@@ -1,5 +1,5 @@
-use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
-use chrono_tz::Europe::Copenhagen;
+use chrono::{DateTime, NaiveDateTime, TimeZone};
+use chrono_tz::{Europe::Copenhagen, Tz};
 use derive_getters::Getters;
 use thirtyfour::{prelude::ElementQueryable, By, WebElement};
 
@@ -7,7 +7,7 @@ use thirtyfour::{prelude::ElementQueryable, By, WebElement};
 pub struct MatchEvent {
     home_team: String,
     away_team: String,
-    time: DateTime<Utc>,
+    time: DateTime<Tz>,
     location: String,
 }
 
@@ -43,7 +43,7 @@ pub async fn extract_teams(element: &WebElement) -> anyhow::Result<Vec<String>> 
 
 /// Extract the time of the match.
 /// This is always extracted in timezone +2.
-pub async fn extract_time(element: &WebElement) -> anyhow::Result<DateTime<Utc>> {
+pub async fn extract_time(element: &WebElement) -> anyhow::Result<DateTime<Tz>> {
     let match_time_wrapper = element.query(By::ClassName("match-time")).first().await?;
     let time_element = match_time_wrapper
         .find(By::Tag("span"))
@@ -59,12 +59,13 @@ pub async fn extract_location(element: &WebElement) -> anyhow::Result<String> {
     let location_element = element.query(By::ClassName("venuename")).first().await?;
     Ok(location_element.text().await?)
 }
-fn parse_datetime(value: &str) -> anyhow::Result<DateTime<Utc>> {
+
+fn parse_datetime(value: &str) -> anyhow::Result<DateTime<Tz>> {
     let pattern = "%b %d, %Y, %I:%M %p";
     let naive_date_time = NaiveDateTime::parse_from_str(value, pattern)?;
     let local_date_time = Copenhagen.from_local_datetime(&naive_date_time).unwrap();
 
-    Ok(local_date_time.with_timezone(&Utc))
+    Ok(local_date_time)
 }
 
 #[cfg(test)]

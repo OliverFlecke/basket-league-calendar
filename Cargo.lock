@@ -483,6 +483,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "753f71e82c28fb469f0d813019eea1caaf4e8064b1e3822556f5b6278c2869a4"
 dependencies = [
  "chrono",
+ "chrono-tz",
  "iso8601",
  "nom",
  "uuid",

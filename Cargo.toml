@@ -10,6 +10,6 @@ anyhow = "1.0.75"
 chrono = { version = "0.4.31", default-features = false }
 chrono-tz = "0.8.3"
 derive-getters = "0.3.0"
-icalendar = "0.15.7"
+icalendar = { version = "0.15.7", features = ["chrono-tz"] }
 thirtyfour = "0.31.0"
 tokio = { version = "1.32.0", features = ["full"] }
