@@ -11,9 +11,11 @@ pub struct MatchEvent {
     location: String,
 }
 
-pub async fn parse_event(element: WebElement) -> anyhow::Result<Option<MatchEvent>> {
+/// Parse event for a given team. Returns `None` if none of the teams matches
+/// the given `team` parameter.
+pub async fn parse_event(element: WebElement, team: &str) -> anyhow::Result<Option<MatchEvent>> {
     let teams = extract_teams(&element).await?;
-    if !teams.iter().any(|x| x == "BK Amager") {
+    if !teams.iter().any(|x| x == team) {
         return Ok(None);
     }
 
@@ -31,7 +33,7 @@ pub async fn parse_event(element: WebElement) -> anyhow::Result<Option<MatchEven
 }
 
 /// Extract the teams playing.
-pub async fn extract_teams(element: &WebElement) -> anyhow::Result<Vec<String>> {
+async fn extract_teams(element: &WebElement) -> anyhow::Result<Vec<String>> {
     let team_elements = element.query(By::ClassName("team-name-full")).all().await?;
     let mut teams = Vec::new();
     for team in team_elements {
@@ -43,7 +45,7 @@ pub async fn extract_teams(element: &WebElement) -> anyhow::Result<Vec<String>> 
 
 /// Extract the time of the match.
 /// This is always extracted in timezone +2.
-pub async fn extract_time(element: &WebElement) -> anyhow::Result<DateTime<Tz>> {
+async fn extract_time(element: &WebElement) -> anyhow::Result<DateTime<Tz>> {
     let match_time_wrapper = element.query(By::ClassName("match-time")).first().await?;
     let time_element = match_time_wrapper
         .find(By::Tag("span"))
@@ -55,7 +57,7 @@ pub async fn extract_time(element: &WebElement) -> anyhow::Result<DateTime<Tz>> 
 }
 
 /// Extract the location for the match.
-pub async fn extract_location(element: &WebElement) -> anyhow::Result<String> {
+async fn extract_location(element: &WebElement) -> anyhow::Result<String> {
     let location_element = element.query(By::ClassName("venuename")).first().await?;
     Ok(location_element.text().await?)
 }

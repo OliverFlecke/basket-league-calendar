@@ -1,6 +1,7 @@
 # Basket calendar extractor
 
 Small utility tool for extracting the calendar of games in the Danish basket league. 
+Used to get the calendar events for my brother's matches in the league.
 
 ## Requirements 
 
