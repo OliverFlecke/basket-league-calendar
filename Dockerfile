@@ -15,11 +15,11 @@ WORKDIR /app
 COPY Cargo.lock .
 COPY Cargo.toml .
 RUN mkdir src && echo "// Dummy file" > src/lib.rs
-RUN cargo build --release 
+RUN cargo build --release
 
 RUN rm src/*.rs
 COPY ./src/ ./src
-RUN cargo build --release 
+RUN cargo build --release
 
 # Final image to contain the application, with chrome and chromedriver installed.
 FROM base AS final
