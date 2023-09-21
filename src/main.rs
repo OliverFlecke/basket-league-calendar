@@ -12,7 +12,7 @@ const GECKODRIVER_HOST: &str = "http://localhost:4444";
 #[derive(Parser)]
 #[command(author, version, about)]
 struct Cli {
-    #[arg(short, long, default_value = "Basket")]
+    #[arg(short, long, default_value = "basket")]
     calendar: String,
     #[arg(short, long, default_value = "BK Amager")]
     team: String,
@@ -54,9 +54,9 @@ async fn get_all_events_from_page(team: &str) -> anyhow::Result<Vec<MatchEvent>>
 
 impl From<&MatchEvent> for Event {
     fn from(event: &MatchEvent) -> Self {
-        let start = CalendarDateTime::from((event.time().naive_utc(), event.time().timezone()));
+        let start = CalendarDateTime::from((event.time().naive_local(), event.time().timezone()));
         let end = CalendarDateTime::from((
-            event.time().naive_utc() + chrono::Duration::hours(2),
+            event.time().naive_local() + chrono::Duration::hours(2),
             event.time().timezone(),
         ));
 
@@ -74,11 +74,21 @@ impl From<&MatchEvent> for Event {
 }
 
 fn create_calendar_of_matches(calendar_name: &str, matches: Vec<MatchEvent>) -> anyhow::Result<()> {
-    let calendar = matches.iter().fold(Calendar::new(), |mut cal, event| {
-        cal.push(Event::from(event));
-        cal
+    let mut calendar = Calendar::new();
+    calendar
+        .name("BK Amager")
+        .description("Game schedule for BK Amager basket team")
+        .timezone("Europe/Copenhagen")
+        .ttl(&chrono::Duration::hours(1));
+
+    matches.iter().map(Event::from).for_each(|e| {
+        calendar.push(e);
     });
 
+    write_to_file(&calendar, calendar_name)
+}
+
+fn write_to_file(calendar: &Calendar, calendar_name: &str) -> anyhow::Result<()> {
     let filename = format!("{}.ics", calendar_name);
     println!("Saving calendar to file: {filename}");
 

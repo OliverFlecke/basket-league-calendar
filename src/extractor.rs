@@ -74,22 +74,31 @@ fn parse_datetime(value: &str) -> anyhow::Result<DateTime<Tz>> {
 mod tests {
     use super::parse_datetime;
     use chrono::{DateTime, FixedOffset, NaiveDate};
+    use chrono_tz::Europe::Copenhagen;
 
     #[test]
     fn parse_date() {
+        // Arrange
+        // Time is given in UTC+02
         let s = "Sep 16, 2023, 2:30 PM";
 
-        let expected = NaiveDate::from_ymd_opt(2023, 9, 16)
+        let expected_utc = NaiveDate::from_ymd_opt(2023, 9, 16)
             .unwrap()
             .and_hms_opt(12, 30, 0)
             .unwrap();
-        assert_eq!(
-            parse_datetime(s).unwrap(),
-            DateTime::<FixedOffset>::from_naive_utc_and_offset(
-                expected,
-                FixedOffset::east_opt(2 * 3600).unwrap()
-            )
+        let expected = DateTime::<FixedOffset>::from_naive_utc_and_offset(
+            expected_utc,
+            FixedOffset::east_opt(2 * 3600).unwrap(),
         );
+
+        // Act
+        let parsed = parse_datetime(s).unwrap();
+        println!("Parsed time: {}", parsed);
+        println!("Expected: {}", expected);
+
+        // Assert
+        assert_eq!(parsed, expected);
+        assert_eq!(parsed.timezone(), Copenhagen);
     }
 
     #[test]
