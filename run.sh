@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
-geckodriver >> /dev/null &
+/app/geckodriver >> /dev/null &
 ID=$!
-./target/release/basket-calendar
+sleep 1
+/app/basket-calendar
 kill $ID

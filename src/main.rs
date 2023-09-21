@@ -16,13 +16,21 @@ struct Cli {
     calendar: String,
     #[arg(short, long, default_value = "BK Amager")]
     team: String,
+    #[arg(short, long)]
+    save: bool,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
     let matches = get_all_events_from_page(&args.team).await?;
-    create_calendar_of_matches(&args.calendar, matches)?;
+    let calendar = create_calendar_of_matches(matches);
+
+    if args.save {
+        write_to_file(&calendar, &args.calendar)?;
+    } else {
+        calendar.print()?;
+    }
 
     Ok(())
 }
@@ -73,7 +81,7 @@ impl From<&MatchEvent> for Event {
     }
 }
 
-fn create_calendar_of_matches(calendar_name: &str, matches: Vec<MatchEvent>) -> anyhow::Result<()> {
+fn create_calendar_of_matches(matches: Vec<MatchEvent>) -> Calendar {
     let mut calendar = Calendar::new();
     calendar
         .name("BK Amager")
@@ -85,7 +93,7 @@ fn create_calendar_of_matches(calendar_name: &str, matches: Vec<MatchEvent>) -> 
         calendar.push(e);
     });
 
-    write_to_file(&calendar, calendar_name)
+    calendar
 }
 
 fn write_to_file(calendar: &Calendar, calendar_name: &str) -> anyhow::Result<()> {
