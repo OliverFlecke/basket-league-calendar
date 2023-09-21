@@ -2,6 +2,9 @@
 
 Small utility tool for extracting the calendar of games in the Danish basket league.
 Used to get the calendar events for my brother's matches in the league.
+By default it is used to generate a calendar with all matches for BK Amager.
+
+The calendar can be found [here](https://oliverflecke.me/basket.ics).
 
 ## Requirements
 
