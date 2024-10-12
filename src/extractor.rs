@@ -1,6 +1,7 @@
 use chrono::{DateTime, NaiveDateTime, TimeZone};
 use chrono_tz::{Europe::Copenhagen, Tz};
 use derive_getters::Getters;
+use log::debug;
 use thirtyfour::{prelude::ElementQueryable, By, WebElement};
 
 #[derive(Debug, Getters)]
@@ -16,6 +17,7 @@ pub struct MatchEvent {
 pub async fn parse_event(element: WebElement, team: &str) -> anyhow::Result<Option<MatchEvent>> {
     let teams = extract_teams(&element).await?;
     if !teams.iter().any(|x| x == team) {
+        debug!("Skipping match {:?} ", teams);
         return Ok(None);
     }
 

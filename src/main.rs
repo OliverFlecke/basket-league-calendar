@@ -3,6 +3,7 @@ mod extractor;
 use clap::Parser;
 use extractor::{parse_event, MatchEvent};
 use icalendar::{Calendar, Event, *};
+use log::info;
 use std::{fs::File, io::Write, time::Duration};
 use thirtyfour::prelude::*;
 
@@ -22,6 +23,7 @@ struct Cli {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    env_logger::init();
     let args = Cli::parse();
     let matches = get_all_events_from_page(&args.team).await?;
     let calendar = create_calendar_of_matches(matches);
@@ -51,6 +53,7 @@ async fn get_all_events_from_page(team: &str) -> anyhow::Result<Vec<MatchEvent>>
     let mut matches = Vec::new();
     for element in elements {
         if let Some(game) = parse_event(element, team).await? {
+            info!("Found game: {}", game.time());
             matches.push(game);
         }
     }
